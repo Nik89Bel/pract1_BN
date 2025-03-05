@@ -6,41 +6,57 @@
 using namespace std;
 struct NonInt {};
 struct NonDouble {};
+struct NonZero {};
+struct MoreZero {};
 
-void inputandcalcm(double m[], int n)
+//Метод по вычеслению среднего значения
+double inputandcalcm(double m[], int n)
 {
-    try {
-        double c = 0;
-        for (int i = 0; i < n; i++)
-        {
-            cout << "Введите " << i + 1 << "-е число" << endl;
-            cin >> m[i];
-            if (!m[i])
-                throw NonDouble();
-            c += m[i];
+    double c = 0;
+    for (int i = 0; i < n; i++)
+    {
+        cout << "Введите " << i + 1 << "-е число" << endl;
+        cin >> m[i];
+        if (cin.fail()) {
+            throw NonDouble(); //Исключение, на символ
         }
-        cout << "Среднее значение введеных чисел: " << setprecision(3) << c / n;
+        else {
+            if (m[i] == 0) {
+                throw NonZero(); //Исключение, на 0
+            }
+        }
+        c += m[i];
     }
-    catch (...) {
-        cout << "Введен символ" << endl;
-    }
+    return c / n;
 }
 
+//Основной код с получением количества чисел 
 int main()
 {
     setlocale(LC_ALL, "Russian");
-    
     try {
         int n;
         cout << "Введите количество чисел" << endl;
         cin >> n;
-        if (!n)
-            throw NonInt();
+        if (cin.fail())
+            throw NonInt(); //Исключение, на символ
+        else
+            if (n <= 0)
+                throw MoreZero(); //Исключение, на отрицательное n
         double* m = new double[n];
-        inputandcalcm(m, n);
+        cout << "Среднее значение введеных чисел: " << setprecision(3) << inputandcalcm(m, n);
     }
-    catch (...) {
+    catch (const NonInt) {
+        cout << "Количество чисел должно быть числом" << endl;
+    }
+    catch (const MoreZero) {
+        cout << "Количество чисел должно быть больше 0" << endl;
+    }
+    catch (const NonDouble) {
         cout << "Введен символ" << endl;
+    }
+    catch (const NonZero) {
+        cout << "Число не может быть равно 0" << endl;
     }
     return 0;
 }
